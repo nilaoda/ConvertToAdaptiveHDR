@@ -43,7 +43,7 @@ func processFile(_ filePath: String, compressionRatio: CGFloat) {
     }
 
     guard let hdrImage = CIImage(contentsOf: inputURL, options: [.expandToHDR: true]) else {
-        print("⚠️ Couldn't load HDR version — using SDR only for gain map")
+        print("❌ Couldn't load HDR version")
         exit(1)
     }
 
