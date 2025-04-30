@@ -37,12 +37,12 @@ func processFile(_ filePath: String, compressionRatio: CGFloat) {
     let inputURL = URL(fileURLWithPath: filePath)
     let outputURL = inputURL.deletingPathExtension().appendingPathExtension("HEIC")
 
-    guard let sdrImage = CIImage(contentsOf: inputURL) else {
+    guard let sdrImage = CIImage(contentsOf: inputURL, options: [.applyOrientationProperty: true]) else {
         print("❌ Couldn't create SDR image from \(inputURL.path)")
         exit(1)
     }
 
-    guard let hdrImage = CIImage(contentsOf: inputURL, options: [.expandToHDR: true]) else {
+    guard let hdrImage = CIImage(contentsOf: inputURL, options: [.expandToHDR: true, .applyOrientationProperty: true]) else {
         print("❌ Couldn't load HDR version")
         exit(1)
     }
