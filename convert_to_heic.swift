@@ -42,10 +42,17 @@ func processFile(_ filePath: String, compressionRatio: CGFloat) {
         exit(1)
     }
 
-    guard let hdrImage = CIImage(contentsOf: inputURL, options: [.expandToHDR: true, .applyOrientationProperty: true]) else {
+    guard var hdrImage = CIImage(contentsOf: inputURL, options: [.expandToHDR: true, .applyOrientationProperty: true]) else {
         print("❌ Couldn't load HDR version")
         exit(1)
     }
+
+    // Downsample gain map to 50%
+    let originalSize = CGSize(width: sdrImage.extent.width, height: sdrImage.extent.height)
+    let targetSize = CGSize(width: Int(originalSize.width * 0.5), height: Int(originalSize.height * 0.5))
+    let scaleTransform = CGAffineTransform(scaleX: CGFloat(targetSize.width) / originalSize.width,
+                                        y: CGFloat(targetSize.height) / originalSize.height)
+    hdrImage = hdrImage.transformed(by: scaleTransform)
 
     print("📸 Processing image at compression: \(compressionRatio)")
     print("🎨 Image Info:")
@@ -60,7 +67,7 @@ func processFile(_ filePath: String, compressionRatio: CGFloat) {
     do {
         let options: [CIImageRepresentationOption: Any] = [
             kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption: compressionRatio,
-            .hdrImage: hdrImage as Any
+            .hdrImage: hdrImage
         ]
 
         try context.writeHEIFRepresentation(of: sdrImage, to: outputURL, format: CIFormat.RGBA8, colorSpace: colorSpace, options: options)
